@@ -12,6 +12,9 @@ variable: '--font-sans'});
 export const metadata: Metadata = {
   title: "Daystar Afya",
   description: "Healthvisor",
+  icons: {
+    icon: '/assets/images/day3.png', 
+  },
 };
 
 export default function RootLayout({
