@@ -10,25 +10,61 @@ export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 
 // FORMAT DATE TIME
-export const formatDateTime = (date: Date, timeZone?: string): { dateTime: string } => {
-  const options: Intl.DateTimeFormatOptions = {
-    // weekday: "short", // abbreviated weekday name (e.g., 'Mon')
-    month: "short", // abbreviated month name (e.g., 'Oct')
-    day: "numeric", // numeric day of the month (e.g., '25')
-    year: "numeric", // numeric year (e.g., '2023')
-    hour: "numeric", // numeric hour (e.g., '8')
-    minute: "numeric", // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+interface DateTimeFormatResult {
+  dateTime: string;
+  isValid: boolean;
+  error?: string;
+}
+
+export const formatDateTime = (
+  date: Date | string | number | null | undefined,
+  timeZone?: string,
+  options: Intl.DateTimeFormatOptions = {}
+): DateTimeFormatResult => {
+  // Default options merged with user-provided options
+  const defaultOptions: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    ...options
   };
 
-  const formattedDateTime: string = new Intl.DateTimeFormat("en-US", {
-    ...options,
-    timeZone: timeZone ?? 'UTC' // Use 'UTC' if no timeZone is provided
-  }).format(date);
+  try {
+    // Handle null/undefined
+    if (date == null) {
+      throw new Error("Date cannot be null or undefined");
+    }
 
-  return {
-    dateTime: formattedDateTime,
-  };
+    // Convert to Date object if it isn't already
+    const dateObj = date instanceof Date ? date : new Date(date);
+
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      throw new Error("Invalid date value");
+    }
+
+    const formattedDateTime = new Intl.DateTimeFormat("en-US", {
+      ...defaultOptions,
+      timeZone: timeZone ?? 'UTC'
+    }).format(dateObj);
+
+    return {
+      dateTime: formattedDateTime,
+      isValid: true
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown date formatting error";
+    console.error("Date formatting error:", errorMessage, { input: date });
+    
+    return {
+      dateTime: "Invalid date",
+      isValid: false,
+      error: errorMessage
+    };
+  }
 };
 
 export function encryptKey(passkey: string) {

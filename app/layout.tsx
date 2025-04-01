@@ -10,7 +10,7 @@ weight: ['300','400','500','600','700'],
 variable: '--font-sans'});
 
 export const metadata: Metadata = {
-  title: "Your Doctor",
+  title: "Daystar Afya",
   description: "Healthvisor",
 };
 
